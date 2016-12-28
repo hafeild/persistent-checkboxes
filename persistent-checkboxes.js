@@ -42,7 +42,22 @@
  * checkbox as it changes. 
  */
 var PersistentCheckboxes = function(){
-    var load, save, addListeners, init;
+    var genKey, load, save, addListeners, init;
+
+    var PAGE = window.location.href;
+
+    /**
+     * Generates a key to store information for a checkbox in localStorage. This
+     * is in the format: checkbox:<page>:<id>, where <page> is the URL of the
+     * page and <id> is the checkbox id (passed in as a parameter).
+     * 
+     * @param {string} id The id of the checkbox.
+     * @return A key that should be unique for the given checkbox on the current
+     *         page.
+     */
+    genKey = function(id){
+        return 'checkbox:'+ PAGE +':'+ id;
+    }
 
     /**
      * A listener to be placed on a checkbox. Saves the checked property (true 
@@ -54,7 +69,7 @@ var PersistentCheckboxes = function(){
     save = function(event){
         // Only inputs with an id will be saved.
         if(this.id === ""){ return; }
-        localStorage.setItem(this.id, this.checked+"");
+        localStorage.setItem(genKey(this.id), this.checked+"");
     };
 
     /**
@@ -63,8 +78,9 @@ var PersistentCheckboxes = function(){
     load = function(){
         jQuery('input[type="checkbox"]').each(function(i, elm){
             // Ignore checkboxes with no id.
-            if(elm.id !== "" && elm.id in localStorage){
-                elm.checked = localStorage.getItem(elm.id) === "true";
+            var key = genKey(elm.id);
+            if(elm.id !== "" && key in localStorage){
+                elm.checked = localStorage.getItem(key) === "true";
             }
         });
     };
@@ -92,7 +108,7 @@ var PersistentCheckboxes = function(){
 };
 
 
-// Lets get this party started!
+// Let's get this party started!
 var persistentCheckboxes;
 jQuery(document).ready(function(){
     persistentCheckboxes = new PersistentCheckboxes();
